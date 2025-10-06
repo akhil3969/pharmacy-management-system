@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Medicines List</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h2>Medicines</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+        </tr>
+        <tr th:each="med : ${medicines}">
+            <td th:text="${med.id}"></td>
+            <td th:text="${med.name}"></td>
+            <td th:text="${med.price}"></td>
+        </tr>
+    </table>
+
+    <a href="/add-medicine.html">Add New Medicine</a>
+</body>
+</html>

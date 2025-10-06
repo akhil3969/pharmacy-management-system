@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Pharmacy Management System</h1>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="entityTabs">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pharmacy">Pharmacies</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#medicine">Medicines</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#batch">Batches</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stock">Stock Movements</button></li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <!-- Pharmacies -->
+        <div class="tab-pane fade show active" id="pharmacy">
+            <h3>Add Pharmacy</h3>
+            <form id="pharmacyForm">
+                <input type="hidden" id="pharmacyId" name="id">
+                <div class="mb-3"><label>Name</label><input type="text" class="form-control" id="pharmacyName" name="name" required></div>
+                <div class="mb-3"><label>Address</label><input type="text" class="form-control" id="pharmacyAddress" name="address" required></div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+            <hr>
+            <h3>All Pharmacies</h3>
+            <table class="table table-bordered" id="pharmacyTable">
+                <thead><tr><th>ID</th><th>Name</th><th>Address</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Medicines -->
+        <div class="tab-pane fade" id="medicine">
+            <h3>Add Medicine</h3>
+            <form id="medicineForm">
+                <input type="hidden" id="medicineId" name="id">
+                <div class="mb-3"><label>Name</label><input type="text" class="form-control" id="medicineName" name="name" required></div>
+                <div class="mb-3"><label>Description</label><input type="text" class="form-control" id="medicineDescription" name="description" required></div>
+                <div class="mb-3"><label>Price</label><input type="number" class="form-control" id="medicinePrice" name="price" required></div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+            <hr>
+            <h3>All Medicines</h3>
+            <table class="table table-bordered" id="medicineTable">
+                <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Price</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Batches -->
+        <div class="tab-pane fade" id="batch">
+            <h3>Add Batch</h3>
+            <form id="batchForm">
+                <input type="hidden" id="batchId" name="id">
+                <div class="mb-3"><label>Batch Number</label><input type="text" class="form-control" id="batchNumber" name="batchNumber" required></div>
+                <div class="mb-3"><label>Expiry Date</label><input type="date" class="form-control" id="batchExpiryDate" name="expiryDate" required></div>
+                <div class="mb-3"><label>Stock Quantity</label><input type="number" class="form-control" id="batchQuantity" name="stockQuantity" required></div>
+                <div class="mb-3">
+                    <label>Medicine</label>
+                    <select class="form-select" id="batchMedicineId" name="medicine.id" required></select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+            <hr>
+            <h3>All Batches</h3>
+            <table class="table table-bordered" id="batchTable">
+                <thead><tr><th>ID</th><th>Batch Number</th><th>Expiry Date</th><th>Stock</th><th>Medicine</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Stock Movements -->
+        <div class="tab-pane fade" id="stock">
+            <h3>Add Stock Movement</h3>
+            <form id="stockForm">
+                <input type="hidden" id="stockId" name="id">
+                <div class="mb-3"><label>Type</label><input type="text" class="form-control" id="stockType" name="type" required></div>
+                <div class="mb-3"><label>Quantity</label><input type="number" class="form-control" id="stockQuantity" name="quantity" required></div>
+                <div class="mb-3"><label>Source Pharmacy</label><select class="form-select" id="stockSourcePharmacyId" name="sourcePharmacy.id" required></select></div>
+                <div class="mb-3"><label>Destination Pharmacy</label><select class="form-select" id="stockDestPharmacyId" name="destinationPharmacy.id" required></select></div>
+                <div class="mb-3"><label>Batch</label><select class="form-select" id="stockBatchId" name="batch.id" required></select></div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+            <hr>
+            <h3>All Stock Movements</h3>
+            <table class="table table-bordered" id="stockTable">
+                <thead><tr><th>ID</th><th>Type</th><th>Quantity</th><th>Source</th><th>Destination</th><th>Batch</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+const baseUrl = ''; // same origin
+
+// Fetch table data
+async function fetchAndRender(endpoint, tableId){
+    try{
+        const res = await axios.get(`${baseUrl}/${endpoint}/list`);
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        tbody.innerHTML='';
+        res.data.forEach(item=>{
+            let row=`<tr>
+                <td>${item.id}</td>
+                <td>${item.name||item.type||item.batchNumber}</td>
+                <td>${item.address||item.description||item.expiryDate||item.stockQuantity||item.sourcePharmacy?.name||item.destinationPharmacy?.name||item.medicine?.name||''}</td>
+                <td>${item.price||''}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="edit('${endpoint}',${item.id})">Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="remove('${endpoint}',${item.id})">Delete</button>
+                </td>
+            </tr>`;
+            tbody.innerHTML+=row;
+        });
+    }catch(err){console.error(err);}
+}
+
+// Populate dropdowns
+async function populateDropdown(endpoint, selectId){
+    try{
+        const res = await axios.get(`${baseUrl}/${endpoint}/list`);
+        const select = document.getElementById(selectId);
+        select.innerHTML='<option value="">Select</option>';
+        res.data.forEach(item=>select.innerHTML+=`<option value="${item.id}">${item.name||item.batchNumber}</option>`);
+    }catch(err){console.error(err);}
+}
+
+async function initDropdowns(){
+    await populateDropdown('medicine','batchMedicineId');
+    await populateDropdown('pharmacy','stockSourcePharmacyId');
+    await populateDropdown('pharmacy','stockDestPharmacyId');
+    await populateDropdown('batch','stockBatchId');
+}
+
+// Submit form with URL-encoded data
+async function submitForm(formId, endpoint){
+    const form=document.getElementById(formId);
+    form.addEventListener('submit', async e=>{
+        e.preventDefault();
+        const formData = new URLSearchParams();
+        form.querySelectorAll('input, select').forEach(input=>{
+            if(input.value) formData.append(input.name, input.value);
+        });
+        try{
+            const url=formData.get('id') ? `${baseUrl}/${endpoint}/update` : `${baseUrl}/${endpoint}`;
+            await axios.post(url, formData.toString(), {headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+            fetchAndRender(endpoint, `${endpoint.replace('-','')}Table`);
+            form.reset();
+            initDropdowns();
+        }catch(err){console.error(err);}
+    });
+}
+
+// Edit record
+async function edit(endpoint,id){
+    const res = await axios.get(`${baseUrl}/${endpoint}/${id}`);
+    const form=document.getElementById(`${endpoint.replace('-','')}Form`);
+    for(let key in res.data){
+        const input=form.querySelector(`[name="${key}"],[name="${key}.id"]`);
+        if(input) input.value=res.data[key]?.id || res.data[key] || '';
+    }
+}
+
+// Delete record
+async function remove(endpoint,id){
+    await axios.post(`${baseUrl}/${endpoint}/delete?id=${id}`);
+    fetchAndRender(endpoint, `${endpoint.replace('-','')}Table`);
+    initDropdowns();
+}
+
+// Initialize all
+['pharmacy','medicine','batch','stock-movements'].forEach(e=>{
+    fetchAndRender(e, `${e.replace('-','')}Table`);
+    submitForm(`${e.replace('-','')}Form`, e);
+});
+initDropdowns();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

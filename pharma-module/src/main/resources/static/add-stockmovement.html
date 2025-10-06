@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Stock Movement</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    label { display: block; margin: 8px 0 4px; }
+    input, select { padding: 6px; width: 250px; }
+    button { margin-top: 10px; padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <h2>Add Stock Movement</h2>
+  <form action="/stock-movements" method="post">
+    <label>Type:</label>
+    <select name="type" required>
+      <option value="TRANSFER">TRANSFER</option>
+      <option value="RETURN">RETURN</option>
+      <option value="SALE">SALE</option>
+    </select>
+
+    <label>Quantity:</label>
+    <input type="number" name="quantity" required>
+
+    <label>Source Pharmacy ID (optional):</label>
+    <input type="number" name="sourcePharmacy.id">
+
+    <label>Destination Pharmacy ID (optional):</label>
+    <input type="number" name="destinationPharmacy.id">
+
+    <label>Batch ID:</label>
+    <input type="number" name="batch.id" required>
+
+    <button type="submit">Save</button>
+  </form>
+</body>
+</html>

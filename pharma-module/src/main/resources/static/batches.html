@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Batches List</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h2>Batches</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Batch Number</th>
+            <th>Expiry Date</th>
+            <th>Stock</th>
+            <th>Medicine</th>
+        </tr>
+        <tr th:each="batch : ${batches}">
+            <td th:text="${batch.id}"></td>
+            <td th:text="${batch.batchNumber}"></td>
+            <td th:text="${batch.expiryDate}"></td>
+            <td th:text="${batch.stockQuantity}"></td>
+            <td th:text="${batch.medicine.name}"></td>
+        </tr>
+    </table>
+
+    <a href="/add-batch.html">Add New Batch</a>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Batches List</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h2>Batches</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Batch Number</th>
+            <th>Expiry Date</th>
+            <th>Stock</th>
+            <th>Medicine</th>
+        </tr>
+        <tr th:each="batch : ${batches}">
+            <td th:text="${batch.id}"></td>
+            <td th:text="${batch.batchNumber}"></td>
+            <td th:text="${batch.expiryDate}"></td>
+            <td th:text="${batch.stockQuantity}"></td>
+            <td th:text="${batch.medicine.name}"></td>
+        </tr>
+    </table>
+
+    <a href="/add-batch.html">Add New Batch</a>
+</body>
+</html>

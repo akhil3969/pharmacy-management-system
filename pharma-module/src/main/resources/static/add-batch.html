@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Batch</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    label { display: block; margin: 8px 0 4px; }
+    input { padding: 6px; width: 250px; }
+    button { margin-top: 10px; padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <h2>Add Batch</h2>
+  <form action="/batches" method="post">
+    <label>Batch Number:</label>
+    <input type="text" name="batchNumber" required>
+
+    <label>Expiry Date (YYYY-MM-DD):</label>
+    <input type="text" name="expiryDate" required>
+
+    <label>Stock Quantity:</label>
+    <input type="number" name="stockQuantity" required>
+
+    <label>Medicine ID:</label>
+    <input type="number" name="medicine.id" required>
+
+    <button type="submit">Save</button>
+  </form>
+</body>
+</html>
