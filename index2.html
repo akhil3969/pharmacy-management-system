@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pharmacy Management System</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      margin: 0; padding: 20px; color: #222;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: white;
+      padding: 25px 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    h2, h3 { text-align: center; color: #0056b3; }
+    form { max-width: 700px; margin: 20px auto 40px; }
+    input, select, button {
+      width: 100%; padding: 10px; margin: 10px 0 18px;
+      font-size: 1rem; border-radius:6px; border: 1px solid #a3aebf;
+      box-sizing: border-box;
+    }
+    button {
+      background:#0056b3; color:#fff; font-weight:bold;
+      border:none; cursor:pointer; max-width:240px;
+      margin:15px auto 0; display:block;
+    }
+    button:hover { background:#003d80; }
+    table {
+      width:100%; border-collapse:collapse; margin-top:25px;
+      font-size:0.9rem;
+    }
+    th, td {
+      padding:12px 15px; border:1px solid #dee2e6; text-align:center;
+    }
+    th { background:#0056b3; color:#fff; }
+    .batch-fields {
+      display:flex; gap:14px; flex-wrap:wrap;
+    }
+    .batch-fields input { flex:1 1 calc(25% - 14px); }
+    .removeBatchBtn {
+      flex:0 0 36px; background:#dc3545; color:#fff;
+      border:none; cursor:pointer; font-weight:bold; border-radius:6px;
+    }
+    .removeBatchBtn:hover { background:#9b1b24; }
+    .message {
+      max-width:700px; margin:10px auto 20px; padding:15px;
+      text-align:center; border-radius:8px; font-weight:600; display:none;
+    }
+    .message.success { background:#d1f2d8; color:#1a6f23; }
+    .message.error   { background:#f8d7da; color:#842029; }
+    .warning-text {
+      color:#d9534f; font-weight:bold; font-size:0.9rem;
+      margin-top:-14px; margin-bottom:14px; text-align:left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Pharmacy Management System</h2>
+    <div id="msg" class="message"></div>
+
+    <section id="mainPharmacySection" style="display:none;">
+      <h3>Create Main Pharmacy</h3>
+      <form id="mainPharmacyForm">
+        <input type="text" id="mainPharmacyName" placeholder="Main Pharmacy Name" required />
+        <input type="text" id="mainPharmacyLocation" placeholder="Location" required />
+        <button type="submit">Create Main Pharmacy</button>
+      </form>
+    </section>
+
+    <section id="branchPharmacySection" style="display:none;">
+      <h3>Add Branch Pharmacy</h3>
+      <form id="branchPharmacyForm">
+        <input type="text" id="branchPharmacyName" placeholder="Branch Pharmacy Name" required />
+        <input type="text" id="branchPharmacyLocation" placeholder="Location" required />
+        <button type="submit">Add Branch Pharmacy</button>
+      </form>
+    </section>
+
+    <section id="medicineSection" style="display:none;">
+      <h3>Add Medicine and Batches</h3>
+      <form id="medicineForm">
+        <input type="text" id="medicineName" placeholder="Medicine Name" required />
+        <input type="text" id="medicineDescription" placeholder="Description (optional)" />
+        <div id="batchesContainer"></div>
+        <button type="button" id="addBatchBtn">Add Batch</button>
+        <button type="submit">Save Medicine</button>
+      </form>
+
+      <h3>Medicines List</h3>
+      <table id="medicineTable">
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Description</th><th>Batches (No - Expiry - Price - Stock)</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="pharmacyListSection" style="display:none;">
+      <h3>Pharmacies</h3>
+      <table id="pharmacyTable">
+        <thead><tr><th>ID</th><th>Name</th><th>Location</th><th>Type</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="transferSection" style="display:none;">
+      <h3>Transfer Medicine Batch</h3>
+      <form id="transferForm">
+        <select id="transferBatchSelect" required><option value="">Select Batch</option></select>
+        <select id="transferFromPharmacySelect" required><option value="">From Pharmacy</option></select>
+        <input type="number" id="transferQuantity" min="1" placeholder="Quantity" required />
+        <div id="transferWarning" class="warning-text"></div>
+        <select id="transferToPharmacySelect" required><option value="">To Pharmacy</option></select>
+        <button type="submit">Transfer</button>
+      </form>
+
+      <h3>Transfer History</h3>
+      <table id="transferTable">
+        <thead><tr><th>ID</th><th>Medicine</th><th>Batch</th><th>From</th><th>To</th><th>Quantity</th><th>Date</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="returnSection" style="display:none;">
+  <h3>Return Medicine Batch</h3>
+  <form id="returnForm">
+    <label for="returnBatchSelect">Select Batch</label>
+    <select id="returnBatchSelect" required>
+      <option value="">Select Batch</option>
+    </select>
+
+    <label for="returnFromPharmacySelect">From Pharmacy</label>
+    <select id="returnFromPharmacySelect" required>
+      <option value="">Select Pharmacy</option>
+    </select>
+
+    <label for="returnQuantity">Quantity</label>
+    <input type="number" id="returnQuantity" min="1" placeholder="Quantity" required />
+    <div id="returnWarning" class="warning-text"></div>
+
+    <label for="returnToPharmacySelect">To Pharmacy</label>
+    <select id="returnToPharmacySelect" required>
+      <option value="">Select Pharmacy</option>
+    </select>
+
+    <button type="submit">Return</button>
+  </form>
+
+  <h3>Return History</h3>
+  <table id="returnTable">
+    <thead>
+      <tr>
+        <th>ID</th><th>Medicine</th><th>Batch</th>
+        <th>From</th><th>To</th><th>Quantity</th><th>Date</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+
+      <!-- <h3>Return History</h3>
+      <table id="returnTable">
+        <thead><tr><th>ID</th><th>Medicine</th><th>Batch</th><th>From</th><th>To</th><th>Quantity</th><th>Date</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section> -->
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:8082";
+    let mainPharmacyId = null;
+    const msgDiv = document.getElementById('msg');
+
+    function showMessage(text, type='success') {
+      msgDiv.textContent = text;
+      msgDiv.className = 'message ' + type;
+      msgDiv.style.display = 'block';
+      setTimeout(() => msgDiv.style.display = 'none', 4000);
+    }
+
+    function createBatchField() {
+      const div = document.createElement('div');
+      div.className = 'batch-fields';
+      div.innerHTML = `
+        <input type="text" class="batchNo" placeholder="Batch No" required>
+        <input type="date" class="expiryDate" required>
+        <input type="number" class="price" placeholder="Price" step="0.01" min="0" required>
+        <input type="number" class="stock" placeholder="Initial Stock" min="1" required>
+        <button type="button" class="removeBatchBtn">×</button>
+      `;
+      div.querySelector('.removeBatchBtn').addEventListener('click', () => div.remove());
+      return div;
+    }
+
+    async function fetchJSON(endpoint, opts={}) {
+      const res = await fetch(API_URL + endpoint, opts);
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    async function postJSON(endpoint, data) {
+      return fetchJSON(endpoint, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(data)
+      });
+    }
+
+    async function fetchStock(batchId, pharmacyId) {
+      try {
+        const res = await fetch(`${API_URL}/pharmacy-stock?batchId=${batchId}&pharmacyId=${pharmacyId}`);
+        if (!res.ok) return 0;
+        const data = await res.json();
+        return data.stock ?? 0;
+      } catch{
+        return 0;
+      }
+    }
+
+    async function validateQuantity(formType) {
+      let batchSelect, fromSel, qtyInput, warningDiv, submitBtn;
+      if(formType==='transfer') {
+        batchSelect = document.getElementById('transferBatchSelect');
+        fromSel    = document.getElementById('transferFromPharmacySelect');
+        qtyInput   = document.getElementById('transferQuantity');
+        warningDiv = document.getElementById('transferWarning');
+        submitBtn  = document.querySelector('#transferForm button[type="submit"]');
+      } else {
+        batchSelect = document.getElementById('returnBatchSelect');
+        fromSel    = document.getElementById('returnFromPharmacySelect');
+        qtyInput   = document.getElementById('returnQuantity');
+        warningDiv = document.getElementById('returnWarning');
+        submitBtn  = document.querySelector('#returnForm button[type="submit"]');
+      }
+      warningDiv.textContent='';
+      submitBtn.disabled=false;
+      const batchId=+batchSelect.value, phId=+fromSel.value, qty=+qtyInput.value;
+      if(!batchId||!phId||!qty) return;
+      const avail = await fetchStock(batchId, phId), rem = avail-qty;
+      if(rem<0){
+        warningDiv.textContent=`Warning: Only ${avail} units available. You exceed by ${-rem}.`;
+        submitBtn.disabled=true;
+      } else {
+        warningDiv.textContent=`Remaining: ${rem} units.`;
+      }
+    }
+
+    document.getElementById('transferBatchSelect').addEventListener('change', ()=>validateQuantity('transfer'));
+    document.getElementById('transferFromPharmacySelect').addEventListener('change', ()=>validateQuantity('transfer'));
+    document.getElementById('transferQuantity').addEventListener('input', ()=>validateQuantity('transfer'));
+    document.getElementById('returnBatchSelect').addEventListener('change', ()=>validateQuantity('return'));
+    document.getElementById('returnFromPharmacySelect').addEventListener('change', ()=>validateQuantity('return'));
+    document.getElementById('returnQuantity').addEventListener('input', ()=>validateQuantity('return'));
+    document.getElementById('addBatchBtn').addEventListener('click', ()=>document.getElementById('batchesContainer').appendChild(createBatchField()));
+
+    document.getElementById('mainPharmacyForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      try {
+        await postJSON('/pharmacies',{ 
+          name:document.getElementById('mainPharmacyName').value.trim(),
+          location:document.getElementById('mainPharmacyLocation').value.trim(),
+          isMainPharmacy:true
+        });
+        showMessage('Main Pharmacy created!','success');
+        await init();
+      } catch(err){ showMessage(err.message,'error'); }
+    });
+
+    document.getElementById('branchPharmacyForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      try {
+        await postJSON('/pharmacies',{ 
+          name:document.getElementById('branchPharmacyName').value.trim(),
+          location:document.getElementById('branchPharmacyLocation').value.trim(),
+          isMainPharmacy:false
+        });
+        showMessage('Branch added!','success');
+        await init();
+      } catch(err){ showMessage(err.message,'error'); }
+    });
+
+    document.getElementById('medicineForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      try {
+        const batches = Array.from(document.querySelectorAll('.batch-fields')).map(div=>{
+          const bn=div.querySelector('.batchNo').value.trim();
+          const ed=div.querySelector('.expiryDate').value;
+          const pr=+div.querySelector('.price').value;
+          const st=+div.querySelector('.stock').value;
+          if(!bn||!ed||!pr||!st) throw new Error('Fill batch fields');
+          return { batchNo:bn, expiryDate:ed, price:pr, stock:st };
+        });
+        await postJSON('/medicines',{
+          name:document.getElementById('medicineName').value.trim(),
+          description:document.getElementById('medicineDescription').value.trim(),
+          batches
+        });
+        showMessage('Medicine saved!','success');
+        e.target.reset();
+        resetBatchesContainer();
+        await init();
+      } catch(err){ showMessage(err.message,'error'); }
+    });
+
+    document.getElementById('transferForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      try{
+        await postJSON('/transfers',{
+          batchId:+document.getElementById('transferBatchSelect').value,
+          quantity:+document.getElementById('transferQuantity').value,
+          fromPharmacyId:+document.getElementById('transferFromPharmacySelect').value,
+          toPharmacyId:+document.getElementById('transferToPharmacySelect').value
+        });
+        showMessage('Transfer done!','success');
+        e.target.reset();
+        await init();
+      } catch(err){ showMessage(err.message,'error'); }
+    });
+
+    document.getElementById('returnForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      try{
+        await postJSON('/returns',{
+          batchId:+document.getElementById('returnBatchSelect').value,
+          quantity:+document.getElementById('returnQuantity').value,
+          fromPharmacyId:+document.getElementById('returnFromPharmacySelect').value,
+          toPharmacyId:+document.getElementById('returnToPharmacySelect').value
+        });
+        showMessage('Return done!','success');
+        e.target.reset();
+        await init();
+      } catch(err){ showMessage(err.message,'error'); }
+    });
+
+    function resetBatchesContainer(){
+      const c=document.getElementById('batchesContainer');
+      c.innerHTML='';
+      c.appendChild(createBatchField());
+    }
+
+    async function loadPharmacies(pharmacies){
+      mainPharmacyId = pharmacies.find(p=>p.isMainPharmacy)?.id||null;
+      const tb=document.querySelector('#pharmacyTable tbody');
+      tb.innerHTML = pharmacies.map(p=>`
+        <tr>
+          <td>${p.id}</td>
+          <td>${p.name} <span style="color:${p.isMainPharmacy?'green':'blue'};">
+            [${p.isMainPharmacy?'Main':'Branch'}]
+          </span></td>
+          <td>${p.location}</td>
+          <td>${p.isMainPharmacy?'Main':'Branch'}</td>
+        </tr>`).join('');
+      ['transferFromPharmacySelect','transferToPharmacySelect',
+       'returnFromPharmacySelect','returnToPharmacySelect'].forEach(id=>{
+        const sel=document.getElementById(id);
+        sel.innerHTML='<option value="">Select Pharmacy</option>';
+        pharmacies.forEach(p=>sel.insertAdjacentHTML('beforeend',
+          `<option value="${p.id}">${p.name} (${p.isMainPharmacy?'Main':'Branch'})</option>`));
+      });
+    }
+
+    async function loadMedicines(){
+      const meds = await fetchJSON('/medicines');
+      console.log('Medicines:',meds);
+      const tb=document.querySelector('#medicineTable tbody');
+      tb.innerHTML = meds.map(m=>{
+        const bs=m.batches.map(b=>{
+          const ms=b.pharmacyStocks.find(s=>s.pharmacyId===mainPharmacyId)?.stock||0;
+          return `${b.batchNo} - ${b.expiryDate} - ₹${b.price} - Stock: ${ms}`;
+        }).join('<br>')||'';
+        return `<tr>
+          <td>${m.id}</td><td>${m.name}</td><td>${m.description||''}</td>
+          <td>${bs}</td>
+        </tr>`;
+      }).join('');
+      ['transferBatchSelect','returnBatchSelect'].forEach(id=>{
+        const sel=document.getElementById(id);
+        sel.innerHTML='<option value="">Select Batch</option>';
+        meds.forEach(m=>{
+          m.batches.forEach(b=>{
+            sel.insertAdjacentHTML('beforeend',
+              `<option value="${b.id}">${m.name} - ${b.batchNo} (Exp:${b.expiryDate})</option>`);
+          });
+        });
+      });
+    }
+
+    async function loadTransfers(){
+      const ts=await fetchJSON('/transfers');
+      const tb=document.querySelector('#transferTable tbody');
+      tb.innerHTML = ts.map(t=>`
+        <tr>
+          <td>${t.id}</td><td>${t.medicineName}</td><td>${t.batchNo}</td>
+          <td>${t.fromPharmacyName}</td><td>${t.toPharmacyName}</td>
+          <td>${t.quantity}</td><td>${new Date(t.transferDate).toLocaleDateString()}</td>
+        </tr>`).join('');
+    }
+
+    async function loadReturns(){
+      const rs=await fetchJSON('/returns');
+      const tb=document.querySelector('#returnTable tbody');
+      tb.innerHTML = rs.map(r=>`
+        <tr>
+          <td>${r.id}</td><td>${r.medicineName}</td><td>${r.batchNo}</td>
+          <td>${r.fromPharmacyName}</td><td>${r.toPharmacyName}</td>
+          <td>${r.quantity}</td><td>${new Date(r.returnDate).toLocaleDateString()}</td>
+        </tr>`).join('');
+    }
+
+    async function init(){
+      try {
+        const phs = await fetchJSON('/pharmacies');
+        if(!phs.find(p=>p.isMainPharmacy)){
+          showSection('mainPharmacySection');
+          hideSections(['branchPharmacySection','medicineSection','pharmacyListSection','transferSection','returnSection']);
+        } else {
+          hideSection('mainPharmacySection');
+          showSections(['branchPharmacySection','medicineSection','pharmacyListSection','transferSection','returnSection']);
+          await loadPharmacies(phs);
+          await loadMedicines();
+          await loadTransfers();
+          await loadReturns();
+        }
+        resetBatchesContainer();
+      } catch(err){
+        showMessage('Failed to load data: '+err.message,'error');
+      }
+    }
+
+    function showSection(id){document.getElementById(id).style.display='block';}
+    function hideSection(id){document.getElementById(id).style.display='none';}
+    function showSections(ids){ids.forEach(showSection);}
+    function hideSections(ids){ids.forEach(hideSection);}
+
+    window.onload = init;
+  </script>
+</body>
+</html>
